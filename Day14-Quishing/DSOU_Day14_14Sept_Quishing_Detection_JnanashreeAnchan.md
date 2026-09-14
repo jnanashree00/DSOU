@@ -16,7 +16,7 @@ A QR code phishing (quishing) email targeting Microsoft 365 credentials was iden
 | To | john.smith@company.com |
 | Subject | ACTION REQUIRED: Invoice #INV-2026-09-14 - Scan to Verify |
 | Date | 14 Sep 2026 08:42:31 UTC |
-| Sending IP | 185.220.101.47 |
+| Sending IP | 185.220.101.47 (synthetic) |
 | SPF | FAIL |
 | DKIM | FAIL |
 | DMARC | FAIL (p=reject) |
@@ -35,15 +35,15 @@ The domain mimics a legitimate Microsoft 365 login page, designed to harvest cre
 
 **QR Code:**
 
-![QR Code](screenshots/qr-code.png)
+<img src="screenshots/qr-code.png" width="200"/>
 
-**VirusTotal Result:** Flagged by 4 vendors as phishing and fraud. Hosted on AWS at IP 13.53.140.86.
+**VirusTotal Result:** Flagged by 13/89 security vendors as malicious. Registered via Amazon Registrar, categorised as phishing and fraud, and classified as a DGA (Domain Generation Algorithm) domain. Created 5 years ago, last analysed 10 days ago. Resolved to hosting IP 13.53.140.86.
 
-![VirusTotal](screenshots/virustotal.png)
+<img src="screenshots/virustotal.png" width="600"/>
 
 **URLScan.io Result:** Could not scan the domain, consistent with anti-analysis techniques used by phishing infrastructure to evade automated scanning.
 
-![URLScan](screenshots/urlscan.png)
+<img src="screenshots/urlscan.png" width="600"/>
 
 ---
 
@@ -73,30 +73,30 @@ EmailAttachmentInfo
 | where ThreatTypes has "Phish"
 ```
 
-This query identifies emails with PDF attachments where the subject references QR codes or scanning, flagged as phishing by Microsoft Defender. Note: query not executed in live environment — documented for detection engineering reference.
+This query identifies emails with PDF attachments where the subject references QR codes or scanning, flagged as phishing by Microsoft Defender. Note: query not executed in live environment, documented for detection engineering reference.
 
 ---
 
 ## IOCs
 
-| Type | Value |
-|---|---|
-| Sender Domain | supplier-invoices[.]net |
-| Sending IP | 185.220.101.47 |
-| Phishing Domain | m365-login[.]com |
-| Hosting IP | 13.53.140.86 |
-| Infrastructure | AWS Route53 |
-| Attachment | Invoice_INV-2026-09-14.pdf |
-| File Hash (synthetic) | d4f8a2c1b9e3f7a0c2d5e8b1f4a7c0d3e6b9f2a5 |
-| Domain Registered | 2021-05-14 |
-| VirusTotal Detections | 4/90 — Phishing and Fraud |
+| Type | Value | Source |
+|---|---|---|
+| Sender Domain | supplier-invoices[.]net | Synthetic |
+| Sending IP | 185.220.101.47 | Synthetic |
+| Phishing Domain | m365-login[.]com | Real |
+| Hosting IP | 13.53.140.86 | VirusTotal |
+| Registrar | Amazon Registrar, Inc. | VirusTotal |
+| VirusTotal Detections | 13/89 — Phishing and Fraud, DGA | VirusTotal |
+| Domain Created | 5 years ago | VirusTotal |
+| Attachment | Invoice_INV-2026-09-14.pdf | Synthetic |
+| File Hash | d4f8a2c1b9e3f7a0c2d5e8b1f4a7c0d3e6b9f2a5 | Synthetic |
 
 ---
 
 ## Recommended Actions
 
 **Block:**
-- IP 185.220.101.47 and 13.53.140.86 on email gateway and firewall
+- IP 13.53.140.86 on email gateway and firewall
 - Domains supplier-invoices[.]net and m365-login[.]com
 - Hash of malicious PDF attachment
 
@@ -112,7 +112,7 @@ This query identifies emails with PDF attachments where the subject references Q
 
 ---
 
-*Note: Synthetic .eml sample used for demonstration purposes. IOCs based on real threat intelligence from VirusTotal.*
+*Note: Synthetic .eml sample used for demonstration purposes. Real threat intelligence sourced from VirusTotal for m365-login[.]com.*
 
 ---
 
