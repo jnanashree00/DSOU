@@ -35,15 +35,15 @@ The domain mimics a legitimate Microsoft 365 login page, designed to harvest cre
 
 **QR Code:**
 
-![QR Code](screenshots/qr-code.png)
+<img src="screenshots/qr-code.png" width="200"/>
 
 **VirusTotal Result:** Flagged by 4 vendors as phishing and fraud. Hosted on AWS at IP 13.53.140.86.
 
-![VirusTotal](screenshots/virustotal.png)
+<img src="screenshots/virustotal.png" width="600"/>
 
 **URLScan.io Result:** Could not scan the domain, consistent with anti-analysis techniques used by phishing infrastructure to evade automated scanning.
 
-![URLScan](screenshots/urlscan.png)
+<img src="screenshots/urlscan.png" width="600"/>
 
 ---
 
