@@ -6,17 +6,17 @@
 
 ## Scenario Overview
 
-|---|---|
-| Device | Cisco Secure Email Gateway |
-| CVE | CVE-2026-76461 |
-| CVSS | 9.8 - Critical |
-| Status | Patched |
-—
+| Field | Details | 
+|---|---| 
+| Device | Cisco Secure Email Gateway | 
+| CVE | CVE-2026-76461 |  
+| CVSS | 9.8 - Critical |  
+| Status | Patched |  
+---
 
-| Key Question: Can we close the incident? |
+Key Question: Can we close the incident?  
 
-
-| Answer: NOT WITHOUT INVESTIGATION |
+Answer: NOT WITHOUT INVESTIGATION 
 
 ---
 
@@ -46,6 +46,7 @@ What telemetry to review and why
 **H1: The vulnerable gateway may have been compromised before remediation**
 
 
+| Field | Details |
 |---|---|
 | Evidence Required | Admin logins, configuration changes, unexpected processes during vulnerability window |
 | Data Source | Cisco ESA logs, authentication logs, system integrity checks |
@@ -160,4 +161,10 @@ Only when all of these are confirmed can you say the incident is closed. A patch
 | Exfiltration Over Alternative Protocol | T1048 |
 | Modify Authentication Process | T1556 |
 
---- ## References - [Cisco Advisory — CVE-2026-76461](https://www.cisco.com/c/en/us/support/docs/csa/cisco-sa-esa-inj-2bLVGmhX.html)   - [Microsoft Security Response Center](https://msrc.microsoft.com/)   - [MITRE ATT&CK Framework](https://attack.mitre.org/)  - [Wazuh Documentation](https://documentation.wazuh.com/)
+--- 
+## References 
+
+- [Cisco Advisory — CVE-2026-76461](https://www.cisco.com/c/en/us/support/docs/csa/cisco-sa-esa-inj-2bLVGmhX.html)  
+- [Microsoft Security Response Center](https://msrc.microsoft.com/)   
+- [MITRE ATT&CK Framework](https://attack.mitre.org/)  
+- [Wazuh Documentation](https://documentation.wazuh.com/)
