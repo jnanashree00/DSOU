@@ -22,12 +22,15 @@
 
 # Phase 1
 
-## Mission:
+
+**Mission:**
 AI Powered Intelligence Gathering
 
-## Command: `sgpt "how to detect CVE-2026-59310 in vCenter logs"`
 
-## Output:
+**Command:** `sgpt "how to detect CVE-2026-59310 in vCenter logs"`
+
+
+**Output:**
 
 ```
 researcher@kali:~$ sgpt "how to detect CVE-2026-59310 in vCenter logs"
@@ -54,9 +57,11 @@ AI identified CVE-2026-59310 as a path traversal vulnerability in rsyslog on vCe
 
 ---
 
-## Command: `arsenal-ng search vcenter`
 
-## Output:
+**Command:** `arsenal-ng search vcenter`
+
+
+**Output:**
 
 ```
 researcher@kali:~$ arsenal-ng search vcenter
@@ -79,12 +84,15 @@ Retrieved 7 vCenter exploits. CVE-2026-59310 exploitation steps confirmed that a
 
 # Phase 2
 
-## Mission:
+
+**Mission:**
 Exploit Development with AI - Use MetasploitMCP to generate a complete exploit module.
 
-## Command: `msfconsole`
 
-## Output:
+**Command:** `msfconsole`
+
+
+**Output:**
 
 ```
 researcher@kali:~$ msfconsole
@@ -94,9 +102,11 @@ Opens the Metasploit Framework console which is the industry standard penetratio
 
 ---
 
-## Command: `msfconsole -q -x "use auxiliary/scanner/misc/cve_2026_59310_check; set RHOSTS 192.168.1.50; run"`
 
-## Output:
+**Command:** `msfconsole -q -x "use auxiliary/scanner/misc/cve_2026_59310_check; set RHOSTS 192.168.1.50; run"`
+
+
+**Output:**
 
 ```
 researcher@kali:~$ msfconsole -q -x "use auxiliary/scanner/misc/cve_2026_59310_check; set RHOSTS 192.168.1.50; run"
@@ -108,12 +118,15 @@ Launches Metasploit silently and runs a scanner module to check if the target at
 
 # Phase 3
 
-## Mission:
+
+**Mission:**
 Debugging the Payload
 
-## Command: `gef-remote -a x86_64 -p 1234`
 
-## Output:
+**Command:** `gef-remote -a x86_64 -p 1234`
+
+
+**Output:**
 
 ```
 researcher@kali:~$ gef-remote -a x86_64 -p 1234
@@ -125,12 +138,15 @@ Connects GEF (GDB Enhanced Features) to a remote debugging session on port 1234.
 
 # Phase 4
 
-## Mission:
+
+**Mission:**
 Detection Engineering - Write a Sigma rule to detect the exploitation attempt.
 
-## Command: `cat > detection-rule.sigma <<EOF`
 
-## Output:
+**Command:** `cat > detection-rule.sigma <<EOF`
+
+
+**Output:**
 
 ```
 researcher@kali:~$ cat > detection-rule.sigma <<EOF
@@ -140,9 +156,11 @@ Creates a new Sigma rule file using a heredoc. Everything typed until EOF is wri
 
 ---
 
-## Command: `cat detection-rule.sigma`
 
-## Output:
+**Command:** `cat detection-rule.sigma`
+
+
+**Output:**
 
 ```
 researcher@kali:~$ cat detection-rule.sigma
@@ -179,12 +197,15 @@ Reads and displays the contents of the Sigma rule file just created, confirming 
 
 # Phase 5
 
-## Mission:
+
+**Mission:**
 Testing Detection - Simulate the attack using atomic-operator and verify the Sigma rule triggers.
 
-## Command: `atomic-operator run --cve CVE-2026-59310 --target 192.168.1.50 --test`
 
-## Output:
+**Command:** `atomic-operator run --cve CVE-2026-59310 --target 192.168.1.50 --test`
+
+
+**Output:**
 
 ```
 researcher@kali:~$ atomic-operator run --cve CVE-2026-59310 --target 192.168.1.50 --test
@@ -198,12 +219,15 @@ Note: Lab simulation returned incorrect output due to environment bug - command 
 
 # Phase 6
 
-## Mission:
+
+**Mission:**
 Final Report and Recommendations - Compile a structured report summarising the exploit, detection, and next steps.
 
-## Command: `cat > report.md <<EOF`
 
-## Output:
+**Command:** `cat > report.md <<EOF`
+
+
+**Output:**
 
 ```
 researcher@kali:~$ cat > report.md <<EOF
@@ -215,9 +239,11 @@ Creates a markdown investigation report documenting findings and recommendations
 
 ---
 
-## Command: `cat report.md`
 
-## Output:
+**Command:** `cat report.md`
+
+
+**Output:**
 
 ```
 researcher@kali:~$ cat report.md
@@ -256,9 +282,3 @@ Displays the final investigation report with findings and recommendations.
 | Exploit Public-Facing Application | T1190 |
 | Scheduled Task/Job: Cron | T1053.003 |
 | Path Traversal | T1083 |
-
----
-
-## Key Takeaways
-
-This lab demonstrated a full zero-day research workflow from AI-assisted intelligence gathering to detection engineering. Using shell-gpt and arsenal-ng accelerated threat research significantly, providing instant detection strategies and exploitation context for CVE-2026-59310. The core learning is that path traversal vulnerabilities in trusted system services like rsyslog can lead to unauthenticated RCE via cron injection and that effective detection requires monitoring at the syscall level using auditd, not just application logs. Writing and validating a Sigma rule as part of the investigation bridges the gap between threat research and operational defence.
