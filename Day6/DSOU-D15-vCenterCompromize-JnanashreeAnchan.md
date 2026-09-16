@@ -62,7 +62,7 @@ What evidence to collect and why
 
 ---
 
-##Detection Engineering
+## Detection Engineering
 
 **Detection Name:** Suspicious Privileged Activity on vCenter Outside Business Hours
 
@@ -89,7 +89,7 @@ What evidence to collect and why
 
 ---
 
-##Ransomware Readiness Checklist
+## Ransomware Readiness Checklist
 
 If ransomware activity is suspected after a vCenter compromise, investigate the following:
 

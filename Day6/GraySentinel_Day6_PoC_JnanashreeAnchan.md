@@ -1,11 +1,12 @@
-# GraySentinel - Day 6 Lab PoC
-Windows Event Forwarding and PowerShell Script Block Logging
-
+# GraySentinel - Day 6 Lab PoC  
+Operation Log Wrangler
 **Analyst:** Jnanashree Anchan | **Date:** 16 September 2026
 
 ---
 
-This lab simulates a real-world Blue Team task of centralising Windows event logs to a Kali Linux syslog-ng server and enabling PowerShell Script Block Logging. The goal is to build an end-to-end log pipeline where Windows hosts forward their Application, Security, and System event logs to a centralised collector, with PowerShell execution captured and forwarded for threat detection in a SIEM environment.
+This lab simulates a real-world Blue Team task of centralising Windows event logs to a Kali Linux syslog-ng server and enabling PowerShell Script Block Logging. 
+
+The goal is to build an end-to-end log pipeline where Windows hosts forward their Application, Security, and System event logs to a centralised collector, with PowerShell execution captured and forwarded for threat detection in a SIEM environment.
 
 ---
 
