@@ -1,330 +1,163 @@
-# Lab Proof of Concept
-### GrayOS — DSOU Day 8: Operation Web Recon
+# GrayOS – Day 8 Lab PoC
+Web Application Reconnaissance — OWASP Juice Shop
 
-**Analyst:** Jnanashree Anchan
-**Program:** GraySentinel Blue Team Premium | Day 8
-**Lab Date:** 21 September 2026
-**Target:** OWASP Juice Shop (intentionally vulnerable web application)
-**Objective:** Perform comprehensive reconnaissance to map the attack surface of a web application using Docker, Burp Suite, and manual API discovery techniques.
+**Analyst:** Jnanashree Anchan | **Date:** 21 September 2026
+
+---
+
+This lab simulates a complete web application reconnaissance chain using OWASP Juice Shop as the target. The goal is to identify the attack surface — API endpoints, input vectors, authentication mechanisms — and discover vulnerabilities through endpoint enumeration, sensitive data exposure, and injection testing, mirroring real-world pre-exploitation recon.
 
 ---
 
 ## Key Concepts
 
-**Docker Deployment** — Containerised web applications can be spun up in seconds for controlled security testing without affecting production systems. Docker isolates the target environment.
-
-**Burp Suite Spider** — A web proxy tool that intercepts and logs HTTP traffic, used here to proxy browser traffic through Juice Shop and discover hidden pages, directories, and endpoints.
-
-**API Discovery** — REST APIs are often the most exposed attack surface. Swagger/OpenAPI documentation, if publicly accessible, reveals every endpoint, HTTP method, and accepted parameter — a recon goldmine.
-
-**Sensitive Data Exposure** — APIs may return raw database records including passwords, PII, and internal identifiers in plaintext if access controls are absent. This maps to OWASP A02: Cryptographic Failures and A01: Broken Access Control.
-
-**Attack Surface Mapping** — The output of recon: a documented inventory of all entry points — pages, API endpoints, input parameters, authentication mechanisms — that an attacker could target.
-
-**OWASP Top 10 Mapping** — Findings are categorised against the OWASP Top 10 to prioritise risk. Key categories observed in this lab: Broken Access Control, Injection, Security Misconfiguration, and Sensitive Data Exposure.
-
----
-
-## Phase 0 — Pre-Mission Setup: Docker Verification
-
-**Objective:** Confirm Docker is installed and ready to deploy containerised applications.
-
-**Command:**
-```bash
-docker --version
-```
-
-**Output:**
-```
-Docker version 24.0.7, build afdd53b
-```
-
-**Analysis:** Docker 24.0.7 is installed and functional on the Kali VM. This version supports all features required for deploying the Juice Shop container. The build hash `afdd53b` confirms a stable release build.
-
+| Term / Concept | Description |
+|---|---|
+| Docker | Containerisation platform used to deploy isolated web applications for security testing |
+| Burp Suite | Web proxy tool that intercepts HTTP/HTTPS traffic for endpoint discovery and testing |
+| API Discovery | Process of identifying REST API endpoints through Swagger docs, spidering, and manual exploration |
+| Swagger / OpenAPI | API documentation standard that reveals endpoints, HTTP methods, and parameters |
+| Endpoint Analysis | Identifying and cataloguing API paths, methods, and parameters to understand attack surface |
+| Sensitive Data Exposure | API responses returning plaintext passwords, PII, or internal data without access controls |
+| Attack Surface Mapping | Documenting all entry points — pages, API endpoints, input vectors, and auth mechanisms |
+| OWASP Top 10 | Industry standard risk categories: Broken Access Control, Injection, Security Misconfiguration etc. |
+| SQL Injection | Attack where malicious input is inserted into a database query via an unsanitised parameter |
+| jq | Command-line JSON processor used to format and read API responses |
 
 ---
 
-## Phase 1 — Juice Shop Deployment
+# Phase 0
+Pre-Mission Setup: Docker Verification
 
-**Objective:** Deploy OWASP Juice Shop as a Docker container on port 3000, creating an isolated vulnerable web application target for reconnaissance.
+**Command:** `docker --version`
 
-**Concept:** Docker pulls the `bkimminich/juice-shop` image from Docker Hub and runs it as a detached container (`-d`) mapped to local port 3000. The `--name juice-shop` flag assigns a human-readable name for easy management.
+![screenshots/phase0-docker-version.png](screenshots/phase0-docker-version.png)
 
-**Command:**
-```bash
-docker run -d -p 3000:3000 --name juice-shop bkimminich/juice-shop
-```
-
-**Output:**
-```
-a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6
-```
-
-**Analysis:** The container ID `a1b2c3d4e5f6...` confirms successful deployment. Juice Shop is now running in a detached container, accessible at `http://localhost:3000`. The `-p 3000:3000` flag maps the container's internal port to the host, making it reachable from the browser and from curl.
-
-Phase 1 complete - Juice Shop deployed and accessible.
+Docker 24.0.7 is installed and functional on the Kali VM, confirming the environment is ready to deploy containerised applications for the lab.
 
 ---
 
-## Phase 2 — Burp Suite Launch
+# Phase 1
+Juice Shop Deployment
 
-**Objective:** Launch Burp Suite Community Edition to act as an intercepting proxy between the browser and Juice Shop, enabling traffic capture and endpoint discovery.
+**Command:** `docker run -d -p 3000:3000 --name juice-shop bkimminich/juice-shop`
 
-**Concept:** Burp Suite's proxy listener intercepts all HTTP/HTTPS traffic routed through it. By configuring the browser to use `127.0.0.1:8080` as its proxy, every request and response passes through Burp — enabling spidering, parameter discovery, and manual testing.
+![screenshots/phase1-docker-run-juice-shop.png](screenshots/phase1-docker-run-juice-shop.png)
 
-**Command:**
-```bash
-burpsuite
-```
-
-**Output:**
-```
-[Burp Suite loading...]
-Burp Suite Community Edition v2024.9.3
-Proxy listening on 127.0.0.1:8080
-Ready.
-```
-
-**Analysis:** Burp Suite Community Edition v2024.9.3 is running with its proxy listener active on `127.0.0.1:8080`. To use it: configure the browser proxy settings to point to this address. All subsequent browser traffic to Juice Shop will be intercepted and logged in the Proxy > HTTP History tab.
-
-Phase 2 complete — Burp Suite proxy active on port 8080.
+Docker pulls the bkimminich/juice-shop image and runs it as a detached container mapped to port 3000. The container ID returned confirms successful deployment. Juice Shop is now accessible at http://localhost:3000.
 
 ---
 
-## Phase 3 — API Discovery via Swagger Documentation
+# Phase 2
+Burp Suite Launch
 
-**Objective:** Identify the Juice Shop's publicly exposed API documentation to enumerate all available endpoints before testing.
+**Command:** `burpsuite`
 
-**Concept:** Many web applications expose Swagger/OpenAPI documentation at `/api-docs`. This is intended for developers but reveals the full API surface to anyone who accesses it — including attackers. It lists every endpoint, HTTP method, and accepted parameter.
+![screenshots/phase2-burpsuite-launch.png](screenshots/phase2-burpsuite-launch.png)
 
-**Command:**
-```bash
-curl http://localhost:3000/api-docs
-```
-
-**Output:**
-```json
-{
-  "openapi": "3.0.0",
-  "info": {
-    "title": "OWASP Juice Shop API",
-    "version": "1.0.0"
-  },
-  "paths": {
-    "/api/Users": { ... },
-    "/api/Products": { ... },
-    "/rest/products/search": { ... }
-  }
-}
-```
-
-**Analysis:** The `/api-docs` endpoint is publicly accessible without authentication, exposing a full OpenAPI 3.0 specification. This is a **Security Misconfiguration** (OWASP A05). The presence of `/api/Users` is immediately significant — an endpoint that manages user data should never be publicly documented without access controls.
-
-Phase 3 complete — Swagger documentation discovered and accessible without authentication.
+Burp Suite Community Edition v2024.9.3 launches with its proxy listener active on 127.0.0.1:8080. Configuring the browser to route traffic through this proxy allows all HTTP requests and responses to Juice Shop to be intercepted and logged in the Proxy > HTTP History tab.
 
 ---
 
-## Phase 4 — API Documentation Review
+# Phase 3
+API Discovery via Swagger Documentation
 
-**Objective:** Extract and review the full API endpoint listing from the Swagger documentation to build an endpoint inventory.
+**Command:** `curl http://localhost:3000/api-docs`
 
-**Command:**
-```bash
-curl -s http://localhost:3000/api-docs | head -50
-```
+![screenshots/phase3-curl-api-docs.png](screenshots/phase3-curl-api-docs.png)
 
-**Output:**
-```json
-{
-  "openapi": "3.0.0",
-  "info": { "title": "OWASP Juice Shop API", "version": "1.0.0" },
-  "paths": {
-    "/api/Users": {
-      "get": { "summary": "Get all users" },
-      "post": { "summary": "Create user" }
-    },
-    "/api/Products": {
-      "get": { "summary": "Get all products" }
-    },
-    "/api/Feedbacks": {
-      "get": { "summary": "Get all feedbacks" },
-      "post": { "summary": "Create feedback" }
-    },
-    "/api/BasketItems": {
-      "get": { "summary": "Get basket items" },
-      "post": { "summary": "Add item" },
-      "delete": { "summary": "Delete item" }
-    },
-    "/rest/products/search": {
-      "get": {
-        "summary": "Search products",
-        "parameters": [{ "name": "q", "in": "query" }]
-      }
-    }
-  }
-}
-```
+The /api-docs endpoint is publicly accessible without authentication, returning a full OpenAPI 3.0 specification. This is a Security Misconfiguration (OWASP A05). The exposure of /api/Users in the documentation immediately signals a high-value target — user data endpoints should never be documented without access controls.
 
-**Analysis — Endpoint Inventory:**
+---
+
+# Phase 4
+API Documentation Review
+
+**Command:** `curl -s http://localhost:3000/api-docs | head -50`
+
+![screenshots/phase4-curl-api-docs-head50.png](screenshots/phase4-curl-api-docs-head50.png)
+
+Full endpoint inventory extracted from the Swagger documentation:
 
 | Endpoint | Methods | Risk Note |
 |---|---|---|
-| `/api/Users` | GET, POST | Returns user data; GET should require admin auth |
-| `/api/Products` | GET | Lower risk — product catalogue |
-| `/api/Feedbacks` | GET, POST | POST without auth = spam/injection vector |
-| `/api/BasketItems` | GET, POST, DELETE | Basket manipulation; IDOR risk |
-| `/rest/products/search` | GET (`?q=`) | Query parameter = injection candidate |
+| /api/Users | GET, POST | Returns user data; GET should require admin auth |
+| /api/Products | GET | Lower risk — product catalogue |
+| /api/Feedbacks | GET, POST | POST without auth = injection vector |
+| /api/BasketItems | GET, POST, DELETE | Basket manipulation; IDOR risk |
+| /rest/products/search | GET (?q=) | Query parameter = injection candidate |
 
-The `q` parameter on the search endpoint is an immediate candidate for SQL injection and reflected XSS testing.
-
-Phase 4 complete — 5 API paths identified across 8 HTTP method combinations.
+The `q` parameter on the search endpoint is an immediate candidate for SQL injection and XSS testing.
 
 ---
 
-## Phase 5 — Endpoint Analysis: User Data
+# Phase 5
+Endpoint Analysis: User Data
 
-**Objective:** Query the `/api/Users` endpoint directly to determine what data is returned and whether authentication is enforced.
+**Command:** `curl -s http://localhost:3000/api/Users | jq`
 
-**Command:**
-```bash
-curl -s http://localhost:3000/api/Users | jq
-```
+![screenshots/phase5-curl-api-users-jq.png](screenshots/phase5-curl-api-users-jq.png)
 
-**Output:**
-```json
-[
-  {
-    "id": 1,
-    "email": "admin@juice-sh.op",
-    "password": "admin123",
-    "createdAt": "2026-08-16T10:30:00.000Z",
-    "updatedAt": "2026-08-16T10:30:00.000Z"
-  },
-  {
-    "id": 2,
-    "email": "user@example.com",
-    "password": "password123",
-    "createdAt": "2026-08-16T10:35:00.000Z",
-    "updatedAt": "2026-08-16T10:35:00.000Z"
-  }
-]
-```
+The /api/Users endpoint returns full user records including plaintext passwords with no authentication required. The admin account (admin@juice-sh.op / admin123) is exposed to any unauthenticated caller. This is a compound vulnerability:
 
-**Analysis:** Critical finding. The `/api/Users` endpoint returns a full user record — including plaintext passwords — with no authentication required. This is a compound vulnerability:
-
-- **OWASP A01 — Broken Access Control:** Unauthenticated access to an admin-level endpoint
-- **OWASP A02 — Cryptographic Failures:** Passwords stored and transmitted in plaintext instead of hashed form
-- **OWASP A07 — Identification and Authentication Failures:** Credential exposure enables immediate account takeover
-
-The admin account (`admin@juice-sh.op` / `admin123`) is exposed, granting full application access to any unauthenticated caller.
-
-Phase 5 complete — Unauthenticated user data exposure confirmed. Critical severity.
+- **OWASP A01 — Broken Access Control:** unauthenticated access to admin-level endpoint
+- **OWASP A02 — Cryptographic Failures:** passwords stored and transmitted in plaintext
+- **OWASP A07 — Identification and Authentication Failures:** credential exposure enables immediate account takeover
 
 ---
 
-## Phase 6 — Sensitive Data Discovery
+# Phase 6
+Sensitive Data Discovery
 
-**Objective:** Filter the API response to isolate and document sensitive fields.
+**Command:** `curl -s http://localhost:3000/api/Users | grep -E "email|password"`
 
-**Command:**
-```bash
-curl -s http://localhost:3000/api/Users | grep -E "email|password"
-```
+![screenshots/phase6-curl-grep-email-password.png](screenshots/phase6-curl-grep-email-password.png)
 
-**Output:**
-```
-"email": "admin@juice-sh.op",
-"password": "admin123",
-"email": "user@example.com",
-"password": "password123"
-```
-
-**Analysis:** Both `email` and `password` fields are returned in plaintext for all users. In a real environment, passwords should never be stored in plaintext — they should be hashed using bcrypt, Argon2, or similar. Returning hashes in API responses would also be a vulnerability; passwords should never appear in any API response. This finding would be classified as **High/Critical** in any penetration test report.
-
-Phase 6 complete — Plaintext credentials confirmed in API response.
+Both email and password fields confirmed in plaintext in the API response for all users. Passwords should be hashed (bcrypt, Argon2) and must never appear in any API response. This finding is classified Critical in a penetration test report.
 
 ---
 
-## Phase 7 — Attack Surface Documentation
+# Phase 7
+Attack Surface Documentation
 
-**Objective:** Document the total attack surface discovered through automated and manual recon.
+**Command:** `echo "Attack Surface: 45+ pages, 20+ API endpoints"`
 
-**Command:**
-```bash
-echo "Attack Surface: 45+ pages, 20+ API endpoints"
-```
-
-**Output:**
-```
-Attack Surface: 45+ pages, 20+ API endpoints
-```
-
-**Attack Surface Summary:**
+![screenshots/phase7-attack-surface-echo.png](screenshots/phase7-attack-surface-echo.png)
 
 | Category | Count | Notes |
 |---|---|---|
 | Web pages / routes | 45+ | Discovered via Burp Suite spidering |
 | API endpoints | 20+ | Swagger docs + manual enumeration |
-| Input vectors | Multiple | Search (`q`), feedback forms, basket, registration |
+| Input vectors | Multiple | Search (?q=), feedback forms, basket, registration |
 | Authentication endpoints | Present | Login, registration, password reset |
-| Admin endpoints | Present | `/api/Users` accessible without auth |
+| Admin endpoints | Present | /api/Users accessible without auth |
 | File upload vectors | Present | Profile photo, complaint attachments |
 
-Phase 7 complete — Attack surface mapped and documented.
+---
+
+# Phase 8
+Vulnerability Discovery: SQL Injection Test
+
+**Command:** `curl "http://localhost:3000/rest/products/search?q='"`
+
+![screenshots/phase8-curl-sqli-test.png](screenshots/phase8-curl-sqli-test.png)
+
+A single-quote payload sent to the search endpoint returns an empty array rather than an error. The application's behaviour changed in response to the injection character, indicating the input reached the query layer without sanitisation. The silent empty response rather than a 400/500 error suggests the application catches the error internally — a sign of poor input handling, not proper sanitisation. OWASP A03 — Injection.
 
 ---
 
-## Phase 8 — Vulnerability Discovery: SQL Injection Test
+# Summary
 
-**Objective:** Test the search endpoint for injection vulnerabilities using a single-quote payload.
+| Phase | Action Taken | Tool | Attacker / Analyst Goal |
+|---|---|---|---|
+| 0. Setup | Verified Docker installation | Docker | Confirm environment is ready |
+| 1. Deployment | Deployed Juice Shop container on port 3000 | Docker | Stand up isolated vulnerable target |
+| 2. Proxy Setup | Launched Burp Suite proxy on port 8080 | Burp Suite | Intercept and log all HTTP traffic |
+| 3. API Discovery | Retrieved Swagger/OpenAPI documentation without auth | curl | Map available endpoints and methods |
+| 4. Docs Review | Extracted full endpoint inventory with methods and parameters | curl, head | Identify high-value and high-risk paths |
+| 5. Endpoint Analysis | Queried /api/Users — full user records returned unauthenticated | curl, jq | Confirm broken access control and data exposure |
+| 6. Sensitive Data | Filtered response for email and password fields in plaintext | grep | Document credential exposure |
+| 7. Attack Surface | Documented 45+ pages and 20+ API endpoints | echo | Summarise total attack surface |
+| 8. Injection Test | Sent single-quote payload to search endpoint | curl | Identify SQL injection candidate |
 
-**Concept:** SQL injection occurs when user-supplied input is incorporated into a database query without proper sanitisation. A single quote (`'`) breaks the SQL string context — if the application is vulnerable, the query fails and the response changes, confirming injection is possible.
-
-**Command:**
-```bash
-curl "http://localhost:3000/rest/products/search?q='"
-```
-
-**Output:**
-```
-[]
-```
-
-**Analysis:** The server returned an empty array rather than an error, but the application's behaviour changed in response to the injection payload — indicating the input reached the query layer. In a full test, follow-up payloads (`' OR '1'='1`, `' UNION SELECT...`) would confirm exploitability. The empty response rather than a 400/500 error suggests the application may be silently catching the error rather than rejecting the input — a sign of poor input handling rather than proper sanitisation.
-
-**MITRE/OWASP Mapping:** OWASP A03 — Injection.
-
-Phase 8 complete — Injection candidate identified on search endpoint.
-
----
-
-## Summary: Findings and OWASP Mapping
-
-| Finding | Severity | OWASP Category |
-|---|---|---|
-| `/api-docs` publicly accessible without auth | Medium | A05 — Security Misconfiguration |
-| `/api/Users` returns all user records without auth | Critical | A01 — Broken Access Control |
-| Passwords stored and returned in plaintext | Critical | A02 — Cryptographic Failures |
-| Search endpoint accepts injection payload (`?q='`) | High | A03 — Injection |
-| No rate limiting observed on API endpoints | Medium | A05 — Security Misconfiguration |
-| Admin credentials exposed (`admin@juice-sh.op`) | Critical | A07 — Identification & Authentication Failures |
-
----
-
-## Tools Used
-
-| Tool | Purpose |
-|---|---|
-| Docker 24.0.7 | Deployed Juice Shop container |
-| Burp Suite Community v2024.9.3 | Intercepting proxy, traffic capture |
-| curl | API endpoint querying |
-| jq | JSON output formatting |
-| grep | Sensitive field extraction |
-
----
-
-## Key Learning
-
-A web application's API surface is often its most vulnerable layer — especially when Swagger documentation is publicly exposed. Unauthenticated access to `/api/Users` returning plaintext passwords is a failure at three levels simultaneously: access control, cryptography, and authentication. Recon is not just about finding what exists — it is about understanding what each entry point could give an attacker if exploited.
-
----
+Simulated a complete web application reconnaissance chain from environment setup to attack surface documentation and vulnerability discovery.
