@@ -1,46 +1,44 @@
 # GraySentinel DSOU — Blue Team SOC Portfolio
+
 **Analyst:** Jnanashree Anchan
-**Program:** GraySentinel Cyber Defence Lab — Blue Team Premium Track
-**Period:** September to November 2026
+**Program:** GraySentinel Cyber Defence Lab Blue Team
+
 
 ## About
-Daily SOC triage reports and lab completion records from 
-the GraySentinel Blue Team program. Each report covers 
-real-world attack scenarios including incident analysis, 
-threat hunting, and detection engineering.
 
-## Skills Demonstrated
-- SOC alert triage and investigation
-- Threat hunting and hypothesis building
-- Incident response workflows
-- Detection rule engineering
-- MITRE ATT&CK mapping
-- Malware and phishing analysis
+This repository holds my daily work from the GraySentinel Blue Team. Each day has two parts: a SOC triage report (DSOU) that analyses a security alert, and a hands-on lab (GrayOS) that practises an attack or defence technique. I add a new folder for each day as I complete the work.
 
-## Daily Reports
+## What each day's folder contains
 
-### Day 01
-**DSOU Alert:** Impossible Travel — Account Compromise
-**GrayOS Lab:** Zero-Day Discovery — CVE-2026-59310 vCenter Path Traversal
-**Verdict:** True Positive
+Every day folder follows the same layout:
 
-### Day 02
-**DSOU Alert:** MFA Fatigue — Account Takeover  
-**GrayOS Lab:** macOS Miner Attack Chain — CVE-2026-65400 Screen Sharing RCE
-**Verdict:** True Positive
+- **DSOU report (.md)** — a SOC analysis of the day's alert: what happened, how I investigated it, the verdict, and how it could be detected.
+- **Lab PoC (.md)** — a record of the day's hands-on lab, with commands and screenshots.
+- **Lab certificate (.png)** — proof of lab completion.
+- **screenshots/** - the images used in the reports.
 
-### Day 03
-**DSOU Alert:** HTML Smuggling — Phishing + Malware Execution
-**GrayOS Lab:** TBC
-**Verdict:** True Positive
+To see the most recent work, open the highest-numbered day folder.
 
-## Lab Certificates
-Daily lab completion certificates included in each day's folder.
+## What the reports cover
 
-## Tools Used
-- AbuseIPDB
-- VirusTotal
-- MITRE ATT&CK
-- Wazuh
-- Sigma Rules
-- GrayOS Lab Environment
+Each DSOU report works through a security scenario the way a SOC analyst would:
+
+- Understanding the alert and the affected system
+- Building hunting hypotheses and gathering evidence
+- Writing a detection idea in Sigma-style logic
+- Checking for attacker persistence
+- Mapping the activity to MITRE ATT&CK
+- Reaching a verdict and listing closure steps
+
+
+## Skills
+ 
+- SOC alert triage and incident investigation
+- Threat hunting and detection engineering
+- Incident response and MITRE ATT&CK mapping
+- Web/API, cloud, container and Active Directory security analysis
+
+
+## Tools
+ 
+Wazuh, Sysmon, Sigma, MITRE ATT&CK, VirusTotal, and a range of web, cloud and Kubernetes security scanners used per lab.
