@@ -1,5 +1,5 @@
 # SOC Triage Report
-### SOC-2026-1001-01 | Operation Invisible OAuth
+### Operation Invisible OAuth
 
 **Analyst:** Jnanashree Anchan | **Program:** GraySentinel DSOU | **Date:** 1 October 2026
 
@@ -9,7 +9,6 @@
 
 | Field | Value |
 |---|---|
-| **Alert ID** | SOC-2026-1001-01 |
 | **Rule** | Illicit OAuth consent with high risk Graph permissions, followed by bulk mailbox and SharePoint access |
 | **Severity** | Critical |
 | **Identity and Host** | priya.sharma@corp.internal (Entra ID), device HR-WS-089 |
